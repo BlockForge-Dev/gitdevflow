@@ -1,0 +1,8 @@
+# Default owners for everything in the repo
+* @your-github-username
+
+# Docs
+/docs/ @your-github-username
+
+# CI/CD
+/.github/ @your-github-username

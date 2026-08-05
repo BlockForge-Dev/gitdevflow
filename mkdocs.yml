@@ -1,0 +1,49 @@
+site_name: gitdevflow
+site_description: A CLI tool for streamlining Git-based development workflows
+site_url: https://your-username.github.io/gitdevflow/
+repo_url: https://github.com/your-username/gitdevflow
+repo_name: your-username/gitdevflow
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Usage:
+      - PR Commands: usage/pr.md
+      - Changelog: usage/changelog.md
+      - Configuration: usage/config.md
