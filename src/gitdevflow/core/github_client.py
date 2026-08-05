@@ -250,6 +250,17 @@ class GitHubClient:
         )
         return BranchComparison.model_validate(response.json())
 
+    async def get_commit_pull_requests(
+        self, owner: str, repo: str, commit_sha: str
+    ) -> list[PullRequest]:
+        """Fetch pull requests associated with a commit SHA."""
+        prs: list[PullRequest] = []
+        async for item in self.paginate(
+            f"/repos/{owner}/{repo}/commits/{commit_sha}/pulls"
+        ):
+            prs.append(PullRequest.model_validate(item))
+        return prs
+
     async def close(self) -> None:
         """Close the underlying HTTP client."""
         await self._client.aclose()

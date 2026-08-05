@@ -273,7 +273,7 @@ def label(
             with Progress(
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(),
-                console=console,
+                console=error_console,
             ) as progress:
                 task = progress.add_task("Labeling PRs...", total=len(prs))
 
