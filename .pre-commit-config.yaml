@@ -32,3 +32,5 @@ repos:
           - pytest
           - pytest-asyncio
           - types-PyYAML
+          - tenacity
+          - respx
