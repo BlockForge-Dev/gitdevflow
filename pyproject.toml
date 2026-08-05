@@ -42,6 +42,7 @@ ruff = "^0.7"
 black = "^24.8"
 mypy = "^1.12"
 pre-commit = "^3.8"
+types-PyYAML = "^6.0"
 bump-my-version = "^0.26"
 toml = "^0.10"
 
@@ -63,6 +64,7 @@ line-length = 88
 src = ["src", "tests"]
 
 [tool.ruff.lint]
+ignore = ["B008"]  # Allow typer.Option / typer.Argument in function defaults
 select = [
     "E",    # pycodestyle errors
     "W",    # pycodestyle warnings

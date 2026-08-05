@@ -1,9 +1,12 @@
 """Typer CLI application entrypoint."""
 
+from pathlib import Path
+
 import typer
 
 from gitdevflow import __app_name__, __version__
 from gitdevflow.commands import changelog, config, pr
+from gitdevflow.core.config import DEFAULT_CONFIG_PATH, AppConfig
 
 app = typer.Typer(
     name=__app_name__,
@@ -32,6 +35,13 @@ def _version_callback(value: bool) -> None:
 
 @app.callback()
 def main(
+    ctx: typer.Context,
+    config_path: Path | None = typer.Option(
+        None,
+        "--config",
+        "-c",
+        help="Path to configuration YAML file.",
+    ),
     show_version: bool | None = typer.Option(
         None,
         "--version",
@@ -42,3 +52,7 @@ def main(
     ),
 ) -> None:
     """gitdevflow — streamline your Git development workflow."""
+    cfg_path = config_path or DEFAULT_CONFIG_PATH
+    loaded_config = AppConfig.load(cfg_path)
+    ctx.ensure_object(dict)
+    ctx.obj["config"] = loaded_config
