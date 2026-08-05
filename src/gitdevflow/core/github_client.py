@@ -222,6 +222,21 @@ class GitHubClient:
         data = response.json()
         return [Label.model_validate(item) for item in data]
 
+    async def merge_pull_request(
+        self,
+        owner: str,
+        repo: str,
+        pr_number: int,
+        merge_method: str = "squash",
+    ) -> dict[str, Any]:
+        """Merge a pull request."""
+        response = await self._request(
+            "PUT",
+            f"/repos/{owner}/{repo}/pulls/{pr_number}/merge",
+            json={"merge_method": merge_method},
+        )
+        return cast(dict[str, Any], response.json())
+
     async def compare_branches(
         self,
         owner: str,
