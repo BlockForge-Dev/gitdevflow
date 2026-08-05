@@ -11,7 +11,7 @@ By default, gitdevflow looks for `.gitdevflow.yml` in your project root.
 ```yaml
 # .gitdevflow.yml
 github:
-  owner: your-username
+  owner: BlockForge-Dev
   repo: your-repo
   token: ${GITHUB_TOKEN}  # Environment variable reference
 

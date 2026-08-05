@@ -5,9 +5,9 @@ description = "A CLI tool for streamlining Git-based development workflows"
 authors = ["Your Name <your.email@example.com>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/your-username/gitdevflow"
-repository = "https://github.com/your-username/gitdevflow"
-documentation = "https://your-username.github.io/gitdevflow/"
+homepage = "https://github.com/BlockForge-Dev/gitdevflow"
+repository = "https://github.com/BlockForge-Dev/gitdevflow"
+documentation = "https://BlockForge-Dev.github.io/gitdevflow/"
 keywords = ["git", "cli", "developer-tools", "pull-request", "changelog"]
 classifiers = [
     "Development Status :: 3 - Alpha",

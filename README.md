@@ -1,6 +1,6 @@
 # gitdevflow
 
-[![CI](https://github.com/your-username/gitdevflow/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/gitdevflow/actions/workflows/ci.yml)
+[![CI](https://github.com/BlockForge-Dev/gitdevflow/actions/workflows/ci.yml/badge.svg)](https://github.com/BlockForge-Dev/gitdevflow/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/gitdevflow)](https://pypi.org/project/gitdevflow/)
 [![Python](https://img.shields.io/pypi/pyversions/gitdevflow)](https://pypi.org/project/gitdevflow/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -42,7 +42,7 @@ gitdevflow changelog generate --since v0.1.0
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/gitdevflow.git
+git clone https://github.com/BlockForge-Dev/gitdevflow.git
 cd gitdevflow
 
 # Install dependencies

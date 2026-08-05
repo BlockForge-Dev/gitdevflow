@@ -15,7 +15,7 @@ pip install gitdevflow
 ## Install from source
 
 ```bash
-git clone https://github.com/your-username/gitdevflow.git
+git clone https://github.com/BlockForge-Dev/gitdevflow.git
 cd gitdevflow
 pip install -e ".[dev]"
 ```

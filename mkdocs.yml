@@ -1,8 +1,8 @@
 site_name: gitdevflow
 site_description: A CLI tool for streamlining Git-based development workflows
-site_url: https://your-username.github.io/gitdevflow/
-repo_url: https://github.com/your-username/gitdevflow
-repo_name: your-username/gitdevflow
+site_url: https://BlockForge-Dev.github.io/gitdevflow/
+repo_url: https://github.com/BlockForge-Dev/gitdevflow
+repo_name: BlockForge-Dev/gitdevflow
 
 theme:
   name: material
