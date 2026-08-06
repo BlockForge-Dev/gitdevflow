@@ -46,6 +46,8 @@ mypy = "^1.12"
 pre-commit = "^3.8"
 types-PyYAML = "^6.0"
 bump-my-version = "^0.26"
+commitizen = "^3.27"
+python-semantic-release = "^9.8"
 toml = "^0.10"
 
 [tool.poetry.group.docs.dependencies]
@@ -58,6 +60,25 @@ gitdevflow = "gitdevflow.cli:app"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+# ── Commitizen ──────────────────────────────────────────────────────────
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_scheme = "semver"
+version_provider = "poetry"
+update_changelog_on_bump = true
+version_files = [
+    "src/gitdevflow/__init__.py:__version__",
+]
+
+# ── Semantic Release ───────────────────────────────────────────────────
+[tool.semantic_release]
+version_variables = ["src/gitdevflow/__init__.py:__version__", "pyproject.toml:version"]
+branch = "main"
+upload_to_pypi = false
+upload_to_release = true
+build_command = "poetry build"
 
 # ── Ruff ────────────────────────────────────────────────────────────────
 [tool.ruff]
