@@ -179,23 +179,28 @@ def generate(
         return
 
     out_path = Path(output)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Prepend to existing CHANGELOG if it exists and outputting markdown
-    if out_path.exists() and fmt_lower in ("markdown", "md"):
-        existing = out_path.read_text(encoding="utf-8")
-        if not existing.startswith("# Changelog"):
-            full_content = f"# Changelog\n\n{content}\n" + existing
-        else:
-            parts = existing.split("\n\n", 1)
-            if len(parts) == 2:
-                full_content = f"{parts[0]}\n\n{content}\n{parts[1]}"
-            else:
+    try:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        if out_path.exists() and fmt_lower in ("markdown", "md"):
+            existing = out_path.read_text(encoding="utf-8")
+            if not existing.startswith("# Changelog"):
                 full_content = f"# Changelog\n\n{content}\n" + existing
-        out_path.write_text(full_content, encoding="utf-8")
-    else:
-        out_path.write_text(content, encoding="utf-8")
-
+            else:
+                parts = existing.split("\n\n", 1)
+                if len(parts) == 2:
+                    full_content = f"{parts[0]}\n\n{content}\n{parts[1]}"
+                else:
+                    full_content = f"# Changelog\n\n{content}\n" + existing
+            out_path.write_text(full_content, encoding="utf-8")
+        else:
+            out_path.write_text(content, encoding="utf-8")
+    except PermissionError as err:
+        error_console.print(
+            f"[bold red]Permission Error:[/] Cannot write to '{out_path}'.\n"
+            "[dim]Pass '--output -' to print to terminal, "
+            "or specify a writable directory path.[/]"
+        )
+        raise typer.Exit(code=1) from err
     console.print(f"[bold green]✓ Changelog generated -> {out_path}[/]")
     console.print("\n[bold]Preview:[/]")
     console.print(Markdown(content))
