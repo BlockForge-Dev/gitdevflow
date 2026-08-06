@@ -24,7 +24,10 @@ app = typer.Typer()
 def generate(
     ctx: typer.Context,
     repo: str | None = typer.Option(
-        None, "--repo", "-r", help="Repository in 'owner/name' format."
+        None,
+        "--repo",
+        "-r",
+        help="Repository in 'owner/name' format. Uses default if not set.",
     ),
     from_ref: str = typer.Option(
         "v0.1.0", "--from-ref", help="Start tag or commit SHA."

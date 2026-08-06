@@ -1,6 +1,7 @@
 """Tests for PR management commands (list, check, label, create, merge)."""
 
 import json
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -30,6 +31,29 @@ class TestPRCommands:
         assert "#42" in result.output
         assert "Add feature X" in result.output
         assert "octocat" in result.output
+
+    @respx.mock
+    def test_pr_list_default_repo_fallback(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_pr_response: dict[str, Any],
+        tmp_path: Path,
+    ) -> None:
+        """`pr list` uses config.default_repo when --repo is omitted."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        cfg_file = tmp_path / "config.yaml"
+        from gitdevflow.core.config import AppConfig
+
+        AppConfig(
+            github_token="ghp_test_token_1234", default_repo="octocat/Hello-World"
+        ).save(cfg_file)
+
+        url = "https://api.github.com/repos/octocat/Hello-World/pulls?state=open&per_page=30"
+        respx.get(url).mock(return_value=httpx.Response(200, json=[mock_pr_response]))
+
+        result = runner.invoke(app, ["--config", str(cfg_file), "pr", "list"])
+        assert result.exit_code == 0
+        assert "#42" in result.output
 
     @respx.mock
     def test_pr_list_json(

@@ -65,8 +65,8 @@ def _resolve_client_and_repo(
     raw_repo = repo_arg or cfg.default_repo
     if not raw_repo:
         error_console.print(
-            "[bold red]Error:[/] No repository specified. "
-            "Provide --repo or set default_repo in config."
+            "[bold red]No repository specified.[/] "
+            "Set a default with 'gitdevflow repo use' or pass --repo."
         )
         raise typer.Exit(code=1)
 
