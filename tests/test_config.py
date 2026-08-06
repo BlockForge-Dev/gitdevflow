@@ -132,3 +132,27 @@ class TestConfigCLI:
         assert result.exit_code == 0
         assert target_path.exists()
         assert "github_token" in target_path.read_text(encoding="utf-8")
+
+    def test_config_init_already_exists(self, tmp_path: Path) -> None:
+        """`config init` fails if target config file already exists."""
+        target_path = tmp_path / "existing.yaml"
+        target_path.write_text("github_token: foo", encoding="utf-8")
+        result = runner.invoke(
+            app, ["config", "init", "--path", str(target_path), "--non-interactive"]
+        )
+        assert result.exit_code == 1
+        assert "already exists" in result.output.lower()
+
+    def test_config_show_rich(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """`config show` renders Rich table when output_format is rich."""
+        cfg_file = tmp_path / "config.yaml"
+        cfg_content = "default_repo: 'org/repo'\noutput_format: 'rich'"
+        cfg_file.write_text(cfg_content, encoding="utf-8")
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_secret_token_12345")
+
+        result = runner.invoke(app, ["--config", str(cfg_file), "config", "show"])
+        assert result.exit_code == 0
+        assert "org/repo" in result.output
+        assert "ghp_...2345" in result.output

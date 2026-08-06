@@ -111,6 +111,12 @@ def main(
         "-V",
         help="Enable detailed verbose logging output.",
     ),
+    debug: bool = typer.Option(
+        False,
+        "--debug",
+        "-d",
+        help="Enable debug logging output.",
+    ),
     show_version: bool | None = typer.Option(
         None,
         "--version",
@@ -121,14 +127,14 @@ def main(
     ),
 ) -> None:
     """gitdevflow — streamline your Git development workflow."""
-    if verbose:
+    if verbose or debug:
         logging.basicConfig(
             level=logging.DEBUG,
             format="%(message)s",
             datefmt="[%X]",
             handlers=[RichHandler(console=error_console, rich_tracebacks=True)],
         )
-        logging.debug("Verbose logging enabled.")
+        logging.debug("Debug logging enabled.")
 
     cfg_path = config_path or DEFAULT_CONFIG_PATH
     try:

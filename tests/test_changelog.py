@@ -197,3 +197,77 @@ class TestChangelogCommands:
         result = runner.invoke(app, ["changelog", "validate", "--path", str(cl_file)])
         assert result.exit_code == 1
         assert "Missing" in result.output
+
+    def test_changelog_validate_non_existent(self, tmp_path: Path) -> None:
+        """`changelog validate` fails when target file does not exist."""
+        missing = tmp_path / "NON_EXISTENT.md"
+        result = runner.invoke(app, ["changelog", "validate", "--path", str(missing)])
+        assert result.exit_code == 1
+        assert "does not exist" in result.output.lower()
+
+    @respx.mock
+    def test_changelog_generate_rate_limited(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """`changelog generate` handles 429 rate limit errors."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        compare_url = (
+            "https://api.github.com/repos/octocat/Hello-World/compare/v0.1.0...HEAD"
+        )
+        respx.get(compare_url).mock(
+            return_value=httpx.Response(
+                429, json={"message": "API rate limit exceeded"}
+            )
+        )
+
+        result = runner.invoke(
+            app, ["changelog", "generate", "--repo", "octocat/Hello-World"]
+        )
+        assert result.exit_code == 1
+        assert "rate limited" in result.output.lower()
+
+    @respx.mock
+    def test_changelog_generate_prepend_existing(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_compare_data: dict[str, Any],
+        mock_pr_response: dict[str, Any],
+    ) -> None:
+        """`changelog generate` prepends new release to existing CHANGELOG.md."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        out_file = tmp_path / "CHANGELOG.md"
+        out_file.write_text(
+            "# Changelog\n\n## [v0.1.0] - 2026-01-01\n- Old feature\n", encoding="utf-8"
+        )
+
+        compare_url = (
+            "https://api.github.com/repos/octocat/Hello-World/compare/v0.1.0...HEAD"
+        )
+        respx.get(compare_url).mock(
+            return_value=httpx.Response(200, json=mock_compare_data)
+        )
+        pr_commit_url = (
+            "https://api.github.com/repos/octocat/Hello-World/commits/"
+            "6dcb09b5b57875f334f61aebed695e2e4193db5e/pulls?per_page=30"
+        )
+        respx.get(pr_commit_url).mock(
+            return_value=httpx.Response(200, json=[mock_pr_response])
+        )
+
+        result = runner.invoke(
+            app,
+            [
+                "changelog",
+                "generate",
+                "--repo",
+                "octocat/Hello-World",
+                "--output",
+                str(out_file),
+            ],
+        )
+        assert result.exit_code == 0
+        content = out_file.read_text(encoding="utf-8")
+        assert "# Changelog" in content
+        assert "Old feature" in content
+        assert "Add feature X" in content

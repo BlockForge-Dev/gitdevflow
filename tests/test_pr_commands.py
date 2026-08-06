@@ -171,3 +171,65 @@ class TestPRCommands:
         )
         assert result.exit_code == 0
         assert "PR #42 merged" in result.output
+
+    @respx.mock
+    def test_pr_check_specific_pr_not_found(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """`pr check --pr 999` displays error when PR is not found."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        url = "https://api.github.com/repos/octocat/Hello-World/pulls?state=all&per_page=30"
+        respx.get(url).mock(return_value=httpx.Response(200, json=[]))
+
+        result = runner.invoke(
+            app, ["pr", "check", "--repo", "octocat/Hello-World", "--pr", "999"]
+        )
+        assert result.exit_code == 1
+        assert "PR #999 not found" in result.output
+
+    @respx.mock
+    def test_pr_check_no_prs(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """`pr check` displays warning when no PRs are present."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        url = "https://api.github.com/repos/octocat/Hello-World/pulls?state=open&per_page=30"
+        respx.get(url).mock(return_value=httpx.Response(200, json=[]))
+
+        result = runner.invoke(app, ["pr", "check", "--repo", "octocat/Hello-World"])
+        assert result.exit_code == 0
+        assert "No pull requests to check" in result.output
+
+    @respx.mock
+    def test_pr_label_no_updates(
+        self, monkeypatch: pytest.MonkeyPatch, mock_pr_response: dict[str, Any]
+    ) -> None:
+        """`pr label` outputs message when no PRs need label updates."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        pr_already_labeled = {
+            **mock_pr_response,
+            "title": "fix: resolve memory leak",
+            "labels": [{"name": "bug"}],
+            "head": {"ref": "fix/memory-leak", "sha": "123456"},
+        }
+        url = "https://api.github.com/repos/octocat/Hello-World/pulls?state=open&per_page=30"
+        respx.get(url).mock(return_value=httpx.Response(200, json=[pr_already_labeled]))
+
+        result = runner.invoke(app, ["pr", "label", "--repo", "octocat/Hello-World"])
+        assert result.exit_code == 0
+        assert "No PRs required label updates" in result.output
+
+    @respx.mock
+    def test_pr_merge_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """`pr merge` displays error when GitHub API fails."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        merge_url = "https://api.github.com/repos/octocat/Hello-World/pulls/42/merge"
+        respx.put(merge_url).mock(
+            return_value=httpx.Response(
+                405, json={"message": "Pull Request is not mergeable"}
+            )
+        )
+
+        result = runner.invoke(
+            app, ["pr", "merge", "42", "--repo", "octocat/Hello-World"]
+        )
+        assert result.exit_code == 1
+        assert "Failed to merge PR" in result.output

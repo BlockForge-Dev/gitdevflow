@@ -25,18 +25,23 @@ class TestCLIUX:
         result = runner.invoke(app, ["version"])
         assert result.exit_code == 0
         assert "gitdevflow" in result.output
-        assert "0.1.0" in result.output
+        assert "1.0.0" in result.output
 
     def test_version_flag(self) -> None:
         """`gitdevflow --version` prints styled version and exits."""
         result = runner.invoke(app, ["--version"])
         assert result.exit_code == 0
         assert "gitdevflow" in result.output
-        assert "0.1.0" in result.output
+        assert "1.0.0" in result.output
 
     def test_verbose_flag(self) -> None:
         """`gitdevflow --verbose` enables debug logging."""
         result = runner.invoke(app, ["--verbose", "version"])
+        assert result.exit_code == 0
+
+    def test_debug_flag(self) -> None:
+        """`gitdevflow --debug` enables debug logging."""
+        result = runner.invoke(app, ["--debug", "version"])
         assert result.exit_code == 0
 
     def test_config_init_interactive(self, tmp_path: Path) -> None:

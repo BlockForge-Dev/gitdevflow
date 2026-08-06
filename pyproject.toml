@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gitdevflow"
-version = "0.1.0"
+version = "1.0.0"
 description = "A CLI tool for streamlining Git-based development workflows"
 authors = ["Your Name <your.email@example.com>"]
 license = "MIT"
