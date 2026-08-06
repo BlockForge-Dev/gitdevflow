@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_CONFIG_PATH = Path.home() / ".gitdevflow.yaml"
@@ -20,6 +20,15 @@ class AppConfig(BaseSettings):
         default=None,
         validation_alias=AliasChoices("GITHUB_TOKEN", "github_token"),
     )
+
+    @field_validator("github_token", mode="before")
+    @classmethod
+    def sanitize_token(cls, v: str | None) -> str | None:
+        if isinstance(v, str):
+            cleaned = "".join(c for c in v if 32 <= ord(c) <= 126).strip()
+            return cleaned if cleaned else None
+        return v
+
     default_repo: str | None = Field(
         default=None,
         validation_alias=AliasChoices("DEFAULT_REPO", "default_repo"),
