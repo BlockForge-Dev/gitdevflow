@@ -163,6 +163,13 @@ class GitHubClient:
         response = await self._request("GET", "/user")
         return User.model_validate(response.json())
 
+    async def list_user_repos(self, per_page: int = 100) -> list[Repository]:
+        """Fetch accessible repositories for the authenticated user."""
+        repos: list[Repository] = []
+        async for item in self.paginate("/user/repos", per_page=per_page):
+            repos.append(Repository.model_validate(item))
+        return repos
+
     async def get_repo(self, owner: str, repo: str) -> Repository:
         """Get repository details."""
         response = await self._request("GET", f"/repos/{owner}/{repo}")

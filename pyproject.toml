@@ -33,6 +33,7 @@ pydantic-settings = "^2.3"
 pyyaml = "^6.0"
 python-dotenv = "^1.0"
 tenacity = "^9.0"
+questionary = "^2.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2"
