@@ -88,6 +88,23 @@ default_repo: "yaml-owner/yaml-repo"
         cfg_long_token = AppConfig(github_token="ghp_1234567890abcdef")
         assert cfg_long_token.masked_token() == "ghp_...cdef"
 
+    def test_save_creates_file_and_permissions(self, tmp_path: Path) -> None:
+        """save() writes YAML file and creates parent directories."""
+        cfg_path = tmp_path / "sub" / "config.yaml"
+        config = AppConfig(github_token="ghp_saved_token", default_repo="owner/repo")
+        saved_path = config.save(cfg_path)
+
+        assert saved_path.exists()
+        assert "ghp_saved_token" in saved_path.read_text(encoding="utf-8")
+
+    def test_gitdevflow_github_token_env_override(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """GITDEVFLOW_GITHUB_TOKEN environment variable overrides settings."""
+        monkeypatch.setenv("GITDEVFLOW_GITHUB_TOKEN", "ghp_specific_token")
+        config = AppConfig.load()
+        assert config.github_token == "ghp_specific_token"
+
 
 class TestConfigCLI:
     """Test `gitdevflow config` CLI commands."""

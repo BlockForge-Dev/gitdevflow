@@ -47,7 +47,7 @@ class TestCLIUX:
     def test_config_init_interactive(self, tmp_path: Path) -> None:
         """`config init` interactive wizard prompts user and writes YAML file."""
         target_path = tmp_path / ".gitdevflow.yaml"
-        user_inputs = "\nghp_my_wizard_token\nmyorg/myrepo\ntype:\nrich\n"
+        user_inputs = "ghp_my_wizard_token\nmyorg/myrepo\ntype:\nrich\n"
 
         result = runner.invoke(
             app,

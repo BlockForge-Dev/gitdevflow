@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import stat
+from contextlib import suppress
 from pathlib import Path
 from typing import Any, Literal
 
@@ -10,7 +12,8 @@ import yaml
 from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-DEFAULT_CONFIG_PATH = Path.home() / ".gitdevflow.yaml"
+DEFAULT_CONFIG_PATH = Path.home() / ".config" / "gitdevflow" / "config.yaml"
+LEGACY_CONFIG_PATH = Path.home() / ".gitdevflow.yaml"
 
 
 class AppConfig(BaseSettings):
@@ -18,7 +21,9 @@ class AppConfig(BaseSettings):
 
     github_token: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("GITHUB_TOKEN", "github_token"),
+        validation_alias=AliasChoices(
+            "GITDEVFLOW_GITHUB_TOKEN", "GITHUB_TOKEN", "github_token"
+        ),
     )
 
     @field_validator("github_token", mode="before")
@@ -55,6 +60,27 @@ class AppConfig(BaseSettings):
         extra="ignore",
     )
 
+    def save(self, path: str | Path | None = None) -> Path:
+        """Save configuration to YAML file with strict file permissions (0o600).
+
+        Args:
+            path: Optional destination path.
+
+        Returns:
+            The Path object where configuration was written.
+        """
+        target_path = Path(path) if path else DEFAULT_CONFIG_PATH
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+
+        data = self.model_dump()
+        yaml_content = yaml.safe_dump(data, sort_keys=False)
+        target_path.write_text(yaml_content, encoding="utf-8")
+
+        with suppress(OSError, NotImplementedError):
+            os.chmod(target_path, 0o600)
+
+        return target_path
+
     @classmethod
     def load(cls, path: str | Path | None = None) -> AppConfig:
         """Load configuration from a YAML file overlaid with environment variables.
@@ -66,9 +92,27 @@ class AppConfig(BaseSettings):
             Populated AppConfig instance.
         """
         config_path = Path(path) if path else DEFAULT_CONFIG_PATH
+        if not config_path.is_file() and not path and LEGACY_CONFIG_PATH.is_file():
+            config_path = LEGACY_CONFIG_PATH
+
         yaml_data: dict[str, Any] = {}
 
         if config_path.is_file():
+            # Check file permissions on POSIX systems
+            try:
+                if os.name == "posix":
+                    st = config_path.stat()
+                    if st.st_mode & (stat.S_IRWXG | stat.S_IRWXO) != 0:
+                        from gitdevflow.utils.console import error_console
+
+                        error_console.print(
+                            f"[bold yellow]Warning:[/] Config file '{config_path}' "
+                            "permissions are too open. Run 'chmod 600 "
+                            f"{config_path}' to secure it."
+                        )
+            except Exception:
+                pass
+
             try:
                 with open(config_path, encoding="utf-8") as f:
                     content = yaml.safe_load(f)
@@ -86,6 +130,8 @@ class AppConfig(BaseSettings):
             upper_key = key.upper()
             if upper_key in os.environ:
                 yaml_data[key] = os.environ[upper_key]
+            elif f"GITDEVFLOW_{upper_key}" in os.environ:
+                yaml_data[key] = os.environ[f"GITDEVFLOW_{upper_key}"]
             elif key in os.environ:
                 yaml_data[key] = os.environ[key]
 

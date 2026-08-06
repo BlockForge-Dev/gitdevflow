@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import typer
-import yaml
 from rich.table import Table
 
 from gitdevflow.core.config import DEFAULT_CONFIG_PATH, AppConfig
@@ -100,36 +99,19 @@ def init(
         prefix = typer.prompt("PR Label Prefix", default="type:")
         fmt = typer.prompt("Output Format (rich, plain)", default="rich")
 
-        config_data = {
-            "github_token": token,
-            "default_repo": repo,
-            "pr_label_prefix": prefix,
-            "changelog_sections": {
+        config_obj = AppConfig(
+            github_token=token if token else None,
+            default_repo=repo if repo else None,
+            pr_label_prefix=prefix,
+            changelog_sections={
                 "Features": ["feat", "enhancement"],
                 "Bug Fixes": ["fix", "bug"],
                 "Documentation": ["docs", "documentation"],
             },
-            "output_format": fmt,
-        }
-        yaml_content = yaml.safe_dump(config_data, sort_keys=False)
+            output_format=fmt,
+        )
     else:
-        yaml_content = """# gitdevflow configuration file
-github_token: ""
-default_repo: ""
-pr_label_prefix: "type:"
-changelog_sections:
-  Features:
-    - feat
-    - enhancement
-  Bug Fixes:
-    - fix
-    - bug
-  Documentation:
-    - docs
-    - documentation
-output_format: "rich"
-"""
+        config_obj = AppConfig()
 
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-    target_path.write_text(yaml_content, encoding="utf-8")
-    console.print(f"[bold green]✓ Created configuration file at {target_path}[/]")
+    saved_file = config_obj.save(target_path)
+    console.print(f"[bold green]✓ Created configuration file at {saved_file}[/]")
