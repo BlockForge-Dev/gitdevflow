@@ -208,7 +208,7 @@ def validate(
         "--path",
         "-p",
         help="Path to CHANGELOG file.",
-    )
+    ),
 ) -> None:
     """Validate the format of an existing CHANGELOG.md file."""
     if not path.exists():
