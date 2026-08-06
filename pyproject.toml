@@ -97,7 +97,7 @@ disallow_untyped_defs = false
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=gitdevflow --cov-report=term-missing --cov-report=xml"
 
 # ── Coverage ────────────────────────────────────────────────────────────
 [tool.coverage.run]
@@ -106,4 +106,4 @@ omit = ["tests/*"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 80
+fail_under = 85

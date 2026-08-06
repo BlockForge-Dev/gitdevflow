@@ -1,14 +1,54 @@
-"""Shared test fixtures: mock GitHub responses, temporary config files."""
+"""Shared test fixtures: mock GitHub responses, temporary config files, CLI runner."""
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Generator
+from pathlib import Path
 from typing import Any
 
 import pytest
 import pytest_asyncio
+import respx
+from typer.testing import CliRunner
 
 from gitdevflow.core.github_client import GitHubClient
+
+runner_instance = CliRunner()
+
+
+@pytest.fixture
+def cli_runner() -> CliRunner:
+    """Fixture providing Typer CliRunner."""
+    return runner_instance
+
+
+@pytest.fixture
+def config_file(tmp_path: Path) -> Path:
+    """Fixture creating a temporary valid .gitdevflow.yaml config file."""
+    cfg_file = tmp_path / ".gitdevflow.yaml"
+    content = """github_token: "ghp_fixture_token_12345"
+default_repo: "octocat/Hello-World"
+pr_label_prefix: "type:"
+changelog_sections:
+  Features:
+    - feat
+    - enhancement
+  Bug Fixes:
+    - fix
+    - bug
+output_format: "rich"
+"""
+    cfg_file.write_text(content, encoding="utf-8")
+    return cfg_file
+
+
+@pytest.fixture
+def mock_github() -> Generator[respx.Router, None, None]:
+    """Fixture using respx to mock GitHub HTTP requests."""
+    with respx.mock(
+        base_url="https://api.github.com", assert_all_called=False
+    ) as respx_mock:
+        yield respx_mock
 
 
 @pytest.fixture

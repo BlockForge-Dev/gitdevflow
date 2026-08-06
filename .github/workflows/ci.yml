@@ -71,7 +71,7 @@ jobs:
           poetry install --with dev
 
       - name: Run tests with coverage
-        run: poetry run pytest --cov=src/gitdevflow --cov-report=xml
+        run: poetry run pytest --cov=gitdevflow --cov-report=xml
 
       - name: Upload coverage
         if: matrix.python-version == '3.11'
