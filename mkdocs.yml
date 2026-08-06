@@ -28,6 +28,10 @@ theme:
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
 
 markdown_extensions:
   - admonition
@@ -47,3 +51,5 @@ nav:
       - PR Commands: usage/pr.md
       - Changelog: usage/changelog.md
       - Configuration: usage/config.md
+  - API Reference: reference/api.md
+  - Contributing: contributing.md

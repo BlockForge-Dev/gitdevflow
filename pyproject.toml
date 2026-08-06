@@ -53,6 +53,7 @@ toml = "^0.10"
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6"
 mkdocs-material = "^9.5"
+mkdocstrings = { version = "^0.26", extras = ["python"] }
 
 [tool.poetry.scripts]
 gitdevflow = "gitdevflow.cli:app"
