@@ -10,7 +10,7 @@ from rich.logging import RichHandler
 from rich.panel import Panel
 
 from gitdevflow import __app_name__, __version__
-from gitdevflow.commands import auth, changelog, config, pr
+from gitdevflow.commands import auth, changelog, config, pr, repo
 from gitdevflow.core.config import DEFAULT_CONFIG_PATH, AppConfig
 from gitdevflow.core.exceptions import (
     AuthenticationError,
@@ -30,6 +30,7 @@ app = typer.Typer(
 
 # Register sub-command groups
 app.add_typer(auth.app, name="auth", help="Authentication commands.")
+app.add_typer(repo.app, name="repo", help="Repository management commands.")
 app.add_typer(pr.app, name="pr", help="Pull request management commands.")
 app.add_typer(changelog.app, name="changelog", help="Changelog generation commands.")
 app.add_typer(config.app, name="config", help="Configuration commands.")
