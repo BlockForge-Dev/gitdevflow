@@ -92,6 +92,35 @@ class TestPRCommands:
         assert "Passed" in result.output
 
     @respx.mock
+    def test_pr_check_default_repo_fallback(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_pr_response: dict[str, Any],
+        tmp_path: Path,
+    ) -> None:
+        """`pr check` uses config.default_repo when --repo is omitted."""
+        monkeypatch.setenv("GITHUB_TOKEN", "ghp_test_token_1234")
+        cfg_file = tmp_path / "config.yaml"
+        from gitdevflow.core.config import AppConfig
+
+        AppConfig(
+            github_token="ghp_test_token_1234", default_repo="octocat/Hello-World"
+        ).save(cfg_file)
+
+        valid_pr = {
+            **mock_pr_response,
+            "title": "feat: add user authentication",
+            "body": "Detailed description of user authentication feature.",
+            "head": {"ref": "feat/user-auth", "sha": "123456"},
+        }
+        url = "https://api.github.com/repos/octocat/Hello-World/pulls?state=open&per_page=30"
+        respx.get(url).mock(return_value=httpx.Response(200, json=[valid_pr]))
+
+        result = runner.invoke(app, ["--config", str(cfg_file), "pr", "check"])
+        assert result.exit_code == 0
+        assert "Passed" in result.output
+
+    @respx.mock
     def test_pr_check_violations(
         self, monkeypatch: pytest.MonkeyPatch, mock_pr_response: dict[str, Any]
     ) -> None:

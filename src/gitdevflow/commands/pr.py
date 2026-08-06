@@ -48,6 +48,23 @@ def parse_repo_string(repo_str: str) -> tuple[str, str]:
     return parts[0], parts[1]
 
 
+def resolve_repo(repo_arg: str | None, cfg: AppConfig) -> tuple[str, str]:
+    """Resolve (owner, repo) from CLI option or config default."""
+    raw_repo = repo_arg or cfg.default_repo
+    if not raw_repo:
+        error_console.print(
+            "[bold red]No repository specified.[/] "
+            "Set a default with 'gitdevflow repo use' or pass --repo."
+        )
+        raise typer.Exit(code=1)
+
+    try:
+        return parse_repo_string(raw_repo)
+    except ValueError as err:
+        error_console.print(f"[bold red]Error:[/] {err}")
+        raise typer.Exit(code=1) from err
+
+
 def _resolve_client_and_repo(
     ctx: typer.Context, repo_arg: str | None
 ) -> tuple[GitHubClient, str, str]:
@@ -58,24 +75,12 @@ def _resolve_client_and_repo(
 
     if not cfg.github_token:
         error_console.print(
-            "[bold red]Error:[/] GITHUB_TOKEN is not set in environment or config."
+            "[bold red]No token found.[/] Set GITHUB_TOKEN environment "
+            "variable or run 'gitdevflow auth login'."
         )
         raise typer.Exit(code=1)
 
-    raw_repo = repo_arg or cfg.default_repo
-    if not raw_repo:
-        error_console.print(
-            "[bold red]No repository specified.[/] "
-            "Set a default with 'gitdevflow repo use' or pass --repo."
-        )
-        raise typer.Exit(code=1)
-
-    try:
-        owner, repo = parse_repo_string(raw_repo)
-    except ValueError as err:
-        error_console.print(f"[bold red]Error:[/] {err}")
-        raise typer.Exit(code=1) from err
-
+    owner, repo = resolve_repo(repo_arg, cfg)
     client = GitHubClient(token=cfg.github_token, owner=owner, repo=repo)
     return client, owner, repo
 
@@ -107,7 +112,7 @@ def list_prs(
     label: str | None = typer.Option(None, "--label", "-l", help="Filter by label."),
     as_json: bool = typer.Option(False, "--json", help="Output raw JSON array."),
 ) -> None:
-    """List pull requests for a repository."""
+    """List pull requests for a repository (uses default if --repo omitted)."""
     client, owner, repo_name = _resolve_client_and_repo(ctx, repo)
 
     async def _fetch() -> list[PullRequest]:
