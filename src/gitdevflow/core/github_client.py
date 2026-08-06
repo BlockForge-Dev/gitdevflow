@@ -20,7 +20,13 @@ from gitdevflow.core.exceptions import (
     NotFoundError,
     RateLimitedError,
 )
-from gitdevflow.core.models import BranchComparison, Label, PullRequest, Repository
+from gitdevflow.core.models import (
+    BranchComparison,
+    Label,
+    PullRequest,
+    Repository,
+    User,
+)
 
 
 class _TransientHTTPError(Exception):
@@ -151,6 +157,11 @@ class GitHubClient:
                     if rel == "next":
                         next_url = link
                         break
+
+    async def get_user(self) -> User:
+        """Get details for the authenticated user."""
+        response = await self._request("GET", "/user")
+        return User.model_validate(response.json())
 
     async def get_repo(self, owner: str, repo: str) -> Repository:
         """Get repository details."""
