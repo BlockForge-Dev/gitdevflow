@@ -12,6 +12,8 @@
 pip install gitdevflow
 ```
 
+Direct PyPI Package: [https://pypi.org/project/gitdevflow/](https://pypi.org/project/gitdevflow/)
+
 ## Install from source
 
 ```bash

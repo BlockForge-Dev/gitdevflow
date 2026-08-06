@@ -26,6 +26,7 @@
 ```bash
 pip install gitdevflow
 ```
+[![PyPI](https://img.shields.io/pypi/v/gitdevflow)](https://pypi.org/project/gitdevflow/) Direct PyPI package link: [https://pypi.org/project/gitdevflow/](https://pypi.org/project/gitdevflow/)
 
 ### Using pipx (Recommended for CLI tools)
 ```bash
