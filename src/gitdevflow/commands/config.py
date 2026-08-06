@@ -1,8 +1,9 @@
-"""Configuration display and validation commands."""
+"""Configuration display, validation, and interactive initialization commands."""
 
 from pathlib import Path
 
 import typer
+import yaml
 from rich.table import Table
 
 from gitdevflow.core.config import DEFAULT_CONFIG_PATH, AppConfig
@@ -76,8 +77,13 @@ def init(
         "-p",
         help="Custom path for initial config file.",
     ),
+    non_interactive: bool = typer.Option(
+        False,
+        "--non-interactive",
+        help="Skip interactive wizard and create default template.",
+    ),
 ) -> None:
-    """Initialize a default configuration file."""
+    """Initialize a new configuration file with an interactive setup wizard."""
     target_path = path or DEFAULT_CONFIG_PATH
     if target_path.exists():
         error_console.print(
@@ -85,7 +91,29 @@ def init(
         )
         raise typer.Exit(code=1)
 
-    sample_content = """# gitdevflow configuration file
+    if not non_interactive:
+        console.print("[bold cyan]Welcome to the gitdevflow Configuration Wizard![/]")
+        token = typer.prompt(
+            "GitHub Personal Access Token", hide_input=True, default=""
+        )
+        repo = typer.prompt("Default Repository (owner/name)", default="")
+        prefix = typer.prompt("PR Label Prefix", default="type:")
+        fmt = typer.prompt("Output Format (rich, plain)", default="rich")
+
+        config_data = {
+            "github_token": token,
+            "default_repo": repo,
+            "pr_label_prefix": prefix,
+            "changelog_sections": {
+                "Features": ["feat", "enhancement"],
+                "Bug Fixes": ["fix", "bug"],
+                "Documentation": ["docs", "documentation"],
+            },
+            "output_format": fmt,
+        }
+        yaml_content = yaml.safe_dump(config_data, sort_keys=False)
+    else:
+        yaml_content = """# gitdevflow configuration file
 github_token: ""
 default_repo: ""
 pr_label_prefix: "type:"
@@ -101,6 +129,7 @@ changelog_sections:
     - documentation
 output_format: "rich"
 """
+
     target_path.parent.mkdir(parents=True, exist_ok=True)
-    target_path.write_text(sample_content, encoding="utf-8")
+    target_path.write_text(yaml_content, encoding="utf-8")
     console.print(f"[bold green]✓ Created configuration file at {target_path}[/]")

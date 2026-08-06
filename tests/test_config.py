@@ -126,7 +126,9 @@ class TestConfigCLI:
     def test_config_init(self, tmp_path: Path) -> None:
         """`config init` creates a new config file."""
         target_path = tmp_path / "new_config.yaml"
-        result = runner.invoke(app, ["config", "init", "--path", str(target_path)])
+        result = runner.invoke(
+            app, ["config", "init", "--path", str(target_path), "--non-interactive"]
+        )
         assert result.exit_code == 0
         assert target_path.exists()
         assert "github_token" in target_path.read_text(encoding="utf-8")
