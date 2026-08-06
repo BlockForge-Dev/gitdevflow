@@ -1,71 +1,92 @@
 # gitdevflow
 
 [![CI](https://github.com/BlockForge-Dev/gitdevflow/actions/workflows/ci.yml/badge.svg)](https://github.com/BlockForge-Dev/gitdevflow/actions/workflows/ci.yml)
+[![Docs](https://github.com/BlockForge-Dev/gitdevflow/actions/workflows/docs.yml/badge.svg)](https://BlockForge-Dev.github.io/gitdevflow/)
 [![PyPI](https://img.shields.io/pypi/v/gitdevflow)](https://pypi.org/project/gitdevflow/)
 [![Python](https://img.shields.io/pypi/pyversions/gitdevflow)](https://pypi.org/project/gitdevflow/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A developer-friendly CLI tool for streamlining Git-based development workflows.
+**gitdevflow** is a modern, developer-friendly CLI tool for automating Git-based development workflows, Conventional Commit validation, PR management, and automated changelog generation.
 
-## Features
+---
 
-- **PR Management** — Create, list, and manage pull requests from the terminal
-- **Changelog Generation** — Automatically generate changelogs from merged PRs
-- **Flexible Configuration** — YAML-based config with environment variable overrides
+## Key Features
+
+- 🐙 **Pull Request Management** — Create, list, check Conventional Commits, auto-label, and merge pull requests directly from your terminal.
+- 📜 **Changelog Generation** — Automatically generate structured release notes in Markdown or JSON from git tag/commit comparisons and merged PRs.
+- 🎨 **Rich Terminal UX** — Beautiful, colored terminal output, interactive setup wizards, progress bars, and Markdown previews using [Rich](https://github.com/Textualize/rich).
+- ⚙️ **Flexible Configuration** — Layered 12-factor configuration via YAML (`~/.gitdevflow.yaml`) and environment variable overrides (`GITHUB_TOKEN`).
+- 🤖 **Commit Compliance** — Enforce Conventional Commit title and branch naming conventions for CI pipelines.
+
+---
 
 ## Installation
 
+### Using pip
 ```bash
 pip install gitdevflow
 ```
 
-## Quick Start
-
+### Using pipx (Recommended for CLI tools)
 ```bash
-# Set your GitHub token
-export GITHUB_TOKEN="ghp_your_token_here"
-
-# Initialize configuration
-gitdevflow config init
-
-# Create a pull request
-gitdevflow pr create --title "Add feature X" --base main
-
-# List open PRs
-gitdevflow pr list
-
-# Generate changelog
-gitdevflow changelog generate --since v0.1.0
+pipx install gitdevflow
 ```
 
-## Development
-
+### From Source
 ```bash
-# Clone the repository
 git clone https://github.com/BlockForge-Dev/gitdevflow.git
 cd gitdevflow
-
-# Install dependencies
-poetry install --with dev
-
-# Run tests
-make test
-
-# Run linters
-make lint
-
-# Run type checker
-make type-check
+poetry install
 ```
+
+---
+
+## Quick Start
+
+### 1. Initialize Configuration
+```bash
+export GITHUB_TOKEN="ghp_your_github_personal_access_token"
+gitdevflow config init
+```
+
+### 2. PR Management
+```bash
+# List open PRs as a styled Rich table
+gitdevflow pr list --repo owner/repository
+
+# Check PR title compliance against Conventional Commits
+gitdevflow pr check --repo owner/repository
+
+# Automatically auto-label PRs based on branch/title prefix rules
+gitdevflow pr label --repo owner/repository
+
+# Create a new PR interactively
+gitdevflow pr create --repo owner/repository --base main
+```
+
+### 3. Changelog Generation
+```bash
+# Generate Markdown changelog between tags
+gitdevflow changelog generate --from-ref v0.1.0 --to-ref HEAD --output CHANGELOG.md
+
+# Export changelog as structured JSON
+gitdevflow changelog generate --from-ref v0.1.0 --output - --format json
+```
+
+---
 
 ## Documentation
 
-Full documentation is available at [https://your-username.github.io/gitdevflow/](https://your-username.github.io/gitdevflow/).
+Full documentation is available at [https://BlockForge-Dev.github.io/gitdevflow/](https://BlockForge-Dev.github.io/gitdevflow/).
+
+---
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on setting up your environment and submitting pull requests.
+
+---
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+Licensed under the [MIT License](LICENSE).
